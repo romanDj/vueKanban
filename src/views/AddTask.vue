@@ -42,6 +42,8 @@
 
                             <v-select
                                     :items="category_item"
+                                    item-text="label"
+                                    item-value="key"
                                     label="Категория"
                                     v-model="category"
                                     :error-messages="categoryErrors"
@@ -54,7 +56,7 @@
                                     @change="$v.description.$touch()"
                             ></v-textarea>
 
-                            <p>Цвет фона</p>
+                            <p>Цвет подчеркивания</p>
 
                             <div style="display: flex">
                                 <v-card  v-for="(item, index) in palette"
@@ -85,15 +87,20 @@ export default {
       name: "",
       description: "",
       category: "",
+      category_key: "",
       date: "",
       menu: false,
       color: "",
-      palette: ["#AFB42B", "#F9A825", "#FF3D00", "#42A5F5", "#FFF8E1"]
+      palette: ["#DD2C00", "#F9A825", "#FF3D00", "#42A5F5", "#FFF8E1"]
     };
   },
   computed: {
     category_item() {
-      return this.$store.getters.category;
+      const cat = [];
+      for (let item of this.$store.getters.tasks) {
+        cat.push({ key: item.key, label: item.category });
+      }
+      return cat;
     },
     nameErrors() {
       const errors = [];
@@ -143,7 +150,17 @@ export default {
       if (this.$v.$invalid) {
         //console.log("Не все поля заполнены.");
       } else {
-        //console.log("Можно отправить.");
+        this.$store
+          .dispatch("addTask", {
+            name: this.name,
+            description: this.description,
+            category: this.category,
+            date: this.date,
+            color: this.color
+          })
+          .then(() => {
+            this.$router.push("/tasks");
+          });
       }
     },
     goBack() {

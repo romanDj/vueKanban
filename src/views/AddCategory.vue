@@ -55,7 +55,9 @@ export default {
       if (this.$v.$invalid) {
         //console.log("Не все поля заполнены.");
       } else {
-        //console.log("Можно отправить.");
+        this.$store.dispatch("addCategory", this.name).then(() => {
+          this.$router.push("/tasks");
+        });
       }
     },
     goBack() {

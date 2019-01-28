@@ -9,130 +9,16 @@
 
         <v-container fluid grid-list-md>
             <v-layout justify-center wrap align-start>
-                <v-card class="kanban">
-                    <v-card-title><h4>Какое то название</h4></v-card-title>
+                <v-card class="kanban" v-for="(task, i) in tasks" :key="i">
+                    <v-card-title class="justify-space-between flex"><h4>{{task.category}}</h4><v-icon class="myicon red--text" @click.prevent="delCategory(task.key)">close</v-icon></v-card-title>
                     <v-divider></v-divider>
                     <v-expansion-panel>
-                        <v-expansion-panel-content style=""
-                                v-for="(item,i) in 5"
-                                :key="i"
-                        >
-                            <div slot="header"><div>
-                                Название задачи <p class="text--secondary accent-1 ma-0">Дата - 2019-01-20</p>
-                            </div>
 
-                            </div>
-                            <v-card style="">
+                        <template  v-for="(item,i) in task.child">
+                            <task :taskitem="item" :key="i"></task>
+                        </template>
 
-                                <v-card-text> Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</v-card-text>
-                                <div  class="flex justify-end">
-                                    <v-icon class="myicon">border_color</v-icon><v-icon class="myicon">close</v-icon>
-                                </div>
-                            </v-card>
-                        </v-expansion-panel-content>
                     </v-expansion-panel>
-                </v-card>
-                <v-card class="kanban">
-                    <v-card-title><h4>Какое то название</h4></v-card-title>
-                    <v-divider></v-divider>
-                    <v-list dense>
-                        <v-list-tile>
-                            <v-list-tile-content>Calories:</v-list-tile-content>
-                            <v-list-tile-content class="align-end">11</v-list-tile-content>
-                        </v-list-tile>
-                        <v-list-tile>
-                            <v-list-tile-content>Fat:</v-list-tile-content>
-                            <v-list-tile-content class="align-end">22</v-list-tile-content>
-                        </v-list-tile>
-                        <v-list-tile>
-                            <v-list-tile-content>Carbs:</v-list-tile-content>
-                            <v-list-tile-content class="align-end">33</v-list-tile-content>
-                        </v-list-tile>
-                        <v-list-tile>
-                            <v-list-tile-content>Protein:</v-list-tile-content>
-                            <v-list-tile-content class="align-end">44</v-list-tile-content>
-                        </v-list-tile>
-                        <v-list-tile>
-                            <v-list-tile-content>Sodium:</v-list-tile-content>
-                            <v-list-tile-content class="align-end">55</v-list-tile-content>
-                        </v-list-tile>
-                        <v-list-tile>
-                            <v-list-tile-content>Calcium:</v-list-tile-content>
-                            <v-list-tile-content class="align-end">66</v-list-tile-content>
-                        </v-list-tile>
-                        <v-list-tile>
-                            <v-list-tile-content>Iron:</v-list-tile-content>
-                            <v-list-tile-content class="align-end">77</v-list-tile-content>
-                        </v-list-tile>
-                    </v-list>
-                </v-card>
-                <v-card class="kanban">
-                    <v-card-title><h4>Какое то название</h4></v-card-title>
-                    <v-divider></v-divider>
-                    <v-list dense>
-                        <v-list-tile>
-                            <v-list-tile-content>Calories:</v-list-tile-content>
-                            <v-list-tile-content class="align-end">11</v-list-tile-content>
-                        </v-list-tile>
-                        <v-list-tile>
-                            <v-list-tile-content>Fat:</v-list-tile-content>
-                            <v-list-tile-content class="align-end">22</v-list-tile-content>
-                        </v-list-tile>
-                        <v-list-tile>
-                            <v-list-tile-content>Carbs:</v-list-tile-content>
-                            <v-list-tile-content class="align-end">33</v-list-tile-content>
-                        </v-list-tile>
-                        <v-list-tile>
-                            <v-list-tile-content>Protein:</v-list-tile-content>
-                            <v-list-tile-content class="align-end">44</v-list-tile-content>
-                        </v-list-tile>
-                        <v-list-tile>
-                            <v-list-tile-content>Sodium:</v-list-tile-content>
-                            <v-list-tile-content class="align-end">55</v-list-tile-content>
-                        </v-list-tile>
-                        <v-list-tile>
-                            <v-list-tile-content>Calcium:</v-list-tile-content>
-                            <v-list-tile-content class="align-end">66</v-list-tile-content>
-                        </v-list-tile>
-                        <v-list-tile>
-                            <v-list-tile-content>Iron:</v-list-tile-content>
-                            <v-list-tile-content class="align-end">77</v-list-tile-content>
-                        </v-list-tile>
-                    </v-list>
-                </v-card>
-                <v-card class="kanban">
-                    <v-card-title><h4>Какое то название</h4></v-card-title>
-                    <v-divider></v-divider>
-                    <v-list dense>
-                        <v-list-tile>
-                            <v-list-tile-content>Calories:</v-list-tile-content>
-                            <v-list-tile-content class="align-end">11</v-list-tile-content>
-                        </v-list-tile>
-                        <v-list-tile>
-                            <v-list-tile-content>Fat:</v-list-tile-content>
-                            <v-list-tile-content class="align-end">22</v-list-tile-content>
-                        </v-list-tile>
-                        <v-list-tile>
-                            <v-list-tile-content>Carbs:</v-list-tile-content>
-                            <v-list-tile-content class="align-end">33</v-list-tile-content>
-                        </v-list-tile>
-                        <v-list-tile>
-                            <v-list-tile-content>Protein:</v-list-tile-content>
-                            <v-list-tile-content class="align-end">44</v-list-tile-content>
-                        </v-list-tile>
-                        <v-list-tile>
-                            <v-list-tile-content>Sodium:</v-list-tile-content>
-                            <v-list-tile-content class="align-end">55</v-list-tile-content>
-                        </v-list-tile>
-                        <v-list-tile>
-                            <v-list-tile-content>Calcium:</v-list-tile-content>
-                            <v-list-tile-content class="align-end">66</v-list-tile-content>
-                        </v-list-tile>
-                        <v-list-tile>
-                            <v-list-tile-content>Iron:</v-list-tile-content>
-                            <v-list-tile-content class="align-end">77</v-list-tile-content>
-                        </v-list-tile>
-                    </v-list>
                 </v-card>
             </v-layout>
 
@@ -150,7 +36,21 @@ export default {
     },
     addCategory() {
       this.$router.push("/addcategory");
+    },
+    delCategory(key) {
+      this.$store.dispatch("delCategory", key);
     }
+  },
+  computed: {
+    tasks() {
+      return this.$store.getters.tasks;
+    }
+  },
+  components: {
+    task: () => import("@/components/TaskOnly.vue")
+  },
+  mounted() {
+    this.$store.dispatch("uploadTask");
   }
 };
 </script>
@@ -165,5 +65,10 @@ export default {
   cursor: pointer;
   font-size: 18px;
   margin-right: 10px;
+}
+.myflex {
+  display: flex;
+  justify-content: flex-end;
+  margin: 10px;
 }
 </style>
