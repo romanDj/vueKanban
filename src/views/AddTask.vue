@@ -97,9 +97,10 @@ export default {
   computed: {
     category_item() {
       const cat = [];
-      for (let item of this.$store.getters.tasks) {
-        cat.push({ key: item.key, label: item.category });
-      }
+      const allTasks = this.$store.getters.tasks;
+      Object.keys(allTasks).forEach(key => {
+        cat.push({ key: key, label: allTasks[key].category });
+      });
       return cat;
     },
     nameErrors() {

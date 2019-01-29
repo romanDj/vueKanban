@@ -11,7 +11,7 @@
                 <v-card>
                     <v-card-text>{{task.description}}</v-card-text>
                     <div class="myflex">
-                        <v-icon class="myicon" @click.prevent="edit = true">border_color</v-icon><v-icon class="myicon" @click.prevent="delTask(task.id)">close</v-icon>
+                        <v-icon class="myicon" @click.prevent="edit = true">border_color</v-icon><v-icon class="myicon" @click.prevent="delTask">close</v-icon>
                     </div>
                 </v-card>
             </template>
@@ -72,7 +72,7 @@
 <script>
 export default {
   name: "TaskOnly",
-  props: ["taskitem"],
+  props: ["taskitem", "index", "category"],
   data() {
     return {
       edit: false,
@@ -85,8 +85,10 @@ export default {
     this.task = this.taskitem;
   },
   methods: {
-    delTask(key) {
-      this.$store.dispatch("delTask", key);
+    delTask() {
+      const tsk = this.index;
+      const cat = this.category;
+      this.$store.dispatch("delTask", { tsk, cat });
     },
     save() {
       this.edit = false;

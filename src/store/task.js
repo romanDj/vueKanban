@@ -1,5 +1,4 @@
 import firebase from "firebase/app";
-import Task from "./task_help";
 
 export default {
   state: {
@@ -27,7 +26,7 @@ export default {
             state.tasks.splice(index, 1);
           }
         } catch (err) {
-          return;
+          throw err;
         }
       });
     },
@@ -45,41 +44,77 @@ export default {
     }
   },
   actions: {
-    async addTask({ commit }, payload) {
-      const task = new Task(
-        payload.name,
-        payload.description,
-        payload.category,
-        payload.date,
-        payload.color,
-        Math.random()
-      );
-      commit("newTask", task);
+    async addTask(payload) {
+      try {
+        await firebase
+          .database()
+          .ref(this.getters.user.id)
+          .child(payload.category)
+          .child("child")
+          .push({
+            name: payload.name,
+            description: payload.description,
+            category: payload.category,
+            date: payload.date,
+            color: payload.color
+          });
+      } catch (e) {
+        throw e;
+      }
     },
-    async addCategory({ commit }, payload) {
-      const category = {
-        key: Math.random() + "qwer",
-        category: payload,
-        child: []
-      };
-      commit("newCategory", category);
+    async addCategory(payload) {
+      try {
+        await firebase
+          .database()
+          .ref(this.getters.user.id)
+          .push({
+            category: payload,
+            child: []
+          });
+      } catch (error) {
+        throw error;
+      }
     },
-    async delCategory({ commit }, payload) {
-      commit("delCategory", payload);
+    async delCategory({ dispatch }, payload) {
+      try {
+        await firebase
+          .database()
+          .ref(this.getters.user.id)
+          .child(payload)
+          .remove();
+        dispatch("uploadTask");
+      } catch (error) {
+        throw error;
+      }
     },
-    async delTask({ commit }, payload) {
-      //console.log( this.getters.user);
-      commit("delTask", payload);
+    async delTask({ dispatch }, { tsk, cat }) {
+      try {
+        await firebase
+          .database()
+          .ref(this.getters.user.id)
+          .child(cat)
+          .child("child")
+          .child(tsk)
+          .remove();
+        dispatch("uploadTask");
+      } catch (error) {
+        throw error;
+      }
     },
     async updateTask() {},
 
     async uploadTask({ commit }) {
-      const tasks = await firebase
-        .database()
-        .ref(this.getters.user.id)
-        .once("value")
-        .val();
-      commit("setTask", tasks);
+      try {
+        //const table = this.getters.user.id;
+        const tasks = await firebase
+          .database()
+          .ref("uEvJDvS1HMUriUmpXalJpmBELd72")
+          .once("value");
+        const tasksVal = tasks.val();
+        commit("setTask", tasksVal);
+      } catch (error) {
+        throw error;
+      }
     }
   },
   getters: {

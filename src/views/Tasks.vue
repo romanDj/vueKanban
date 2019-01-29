@@ -9,17 +9,25 @@
 
         <v-container fluid grid-list-md>
             <v-layout justify-center wrap align-start>
-                <v-card class="kanban" v-for="(task, i) in tasks" :key="i">
-                    <v-card-title class="justify-space-between flex"><h4>{{task.category}}</h4><v-icon class="myicon red--text" @click.prevent="delCategory(task.key)">close</v-icon></v-card-title>
-                    <v-divider></v-divider>
-                    <v-expansion-panel>
 
-                        <template  v-for="(item,i) in task.child">
-                            <task :taskitem="item" :key="i"></task>
-                        </template>
 
-                    </v-expansion-panel>
-                </v-card>
+                        <v-card class="kanban" v-for="(task, i) in tasks" :key="i">
+
+                            <v-card-title class="justify-space-between flex"><h4>{{task.category}}</h4><v-icon class="myicon red--text" @click.prevent="delCategory(i)">close</v-icon></v-card-title>
+                            <v-divider></v-divider>
+                            <v-expansion-panel>
+
+                                <template  v-for="(item,it) in task.child">
+                                    <task :taskitem="item" :key="it" :index="it" :category="i"></task>
+                                </template>
+
+                            </v-expansion-panel>
+
+                        </v-card>
+
+
+
+
             </v-layout>
 
         </v-container>
@@ -30,6 +38,11 @@
 <script>
 export default {
   name: "Tasks",
+  data() {
+    return {
+      load: true
+    };
+  },
   methods: {
     addTask() {
       this.$router.push("/addtask");
@@ -39,6 +52,9 @@ export default {
     },
     delCategory(key) {
       this.$store.dispatch("delCategory", key);
+    },
+    loadTask() {
+      this.$store.dispatch("uploadTask");
     }
   },
   computed: {
@@ -50,7 +66,8 @@ export default {
     task: () => import("@/components/TaskOnly.vue")
   },
   mounted() {
-    this.$store.dispatch("uploadTask");
+    //console.log(this.$store.getters.user);
+    this.loadTask();
   }
 };
 </script>
