@@ -92,7 +92,7 @@ export default {
     },
     save() {
       this.edit = false;
-      this.$store.dispatch("updateTask", this.task);
+      this.$store.dispatch("updateTask", { task: this.task, id: this.index });
     }
   }
 };

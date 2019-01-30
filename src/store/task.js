@@ -44,7 +44,7 @@ export default {
     }
   },
   actions: {
-    async addTask(payload) {
+    async addTask({ commit }, payload) {
       try {
         await firebase
           .database()
@@ -58,11 +58,12 @@ export default {
             date: payload.date,
             color: payload.color
           });
+        commit();
       } catch (e) {
         throw e;
       }
     },
-    async addCategory(payload) {
+    async addCategory({ commit }, payload) {
       try {
         await firebase
           .database()
@@ -71,6 +72,7 @@ export default {
             category: payload,
             child: []
           });
+        commit();
       } catch (error) {
         throw error;
       }
@@ -101,7 +103,27 @@ export default {
         throw error;
       }
     },
-    async updateTask() {},
+
+    async updateTask({ commit }, payload) {
+      try {
+        await firebase
+          .database()
+          .ref(this.getters.user.id)
+          .child(payload.task.category)
+          .child("child")
+          .child(payload.id)
+          .update({
+            name: payload.task.name,
+            description: payload.task.description,
+            category: payload.task.category,
+            date: payload.task.date,
+            color: payload.task.color
+          });
+        commit();
+      } catch (e) {
+        throw e;
+      }
+    },
 
     async uploadTask({ commit }) {
       try {
