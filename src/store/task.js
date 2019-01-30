@@ -58,7 +58,7 @@ export default {
             date: payload.date,
             color: payload.color
           });
-        commit();
+        commit("setLoading", false);
       } catch (e) {
         throw e;
       }
@@ -72,7 +72,7 @@ export default {
             category: payload,
             child: []
           });
-        commit();
+        commit("setLoading", false);
       } catch (error) {
         throw error;
       }
@@ -119,7 +119,7 @@ export default {
             date: payload.task.date,
             color: payload.task.color
           });
-        commit();
+        commit("setLoading", false);
       } catch (e) {
         throw e;
       }
@@ -127,13 +127,14 @@ export default {
 
     async uploadTask({ commit }) {
       try {
-        //const table = this.getters.user.id;
+        commit("setLoading", true);
         const tasks = await firebase
           .database()
-          .ref("uEvJDvS1HMUriUmpXalJpmBELd72")
+          .ref(this.getters.user.id)
           .once("value");
         const tasksVal = tasks.val();
         commit("setTask", tasksVal);
+        commit("setLoading", false);
       } catch (error) {
         throw error;
       }

@@ -40,15 +40,6 @@
                                 </v-date-picker>
                             </v-menu>
 
-                            <v-select
-                                    :items="category_item"
-                                    item-text="label"
-                                    item-value="key"
-                                    label="Категория"
-                                    v-model="category"
-                                    :error-messages="categoryErrors"
-                                    @change="$v.category.$touch()"
-                            ></v-select>
                             <v-textarea
                                     v-model="description"
                                     label="Описание"
@@ -167,6 +158,9 @@ export default {
     goBack() {
       this.$router.push("/tasks");
     }
+  },
+  created() {
+    this.category = this.$route.params.id;
   }
 };
 </script>

@@ -18,7 +18,7 @@ export default new Router({
       component: () => import("./views/Signup.vue")
     },
     {
-      path: "/addtask",
+      path: "/addtask/:id",
       name: "addtask",
       component: () => import("./views/AddTask.vue")
     },
