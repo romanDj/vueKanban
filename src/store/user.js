@@ -3,7 +3,9 @@ import User from "./user_help";
 
 export default {
   state: {
-    user: null
+    user: localStorage.getItem("user-token")
+      ? new User(localStorage.getItem("user-token"))
+      : null
   },
   mutations: {
     setUser(state, payload) {
@@ -31,6 +33,7 @@ export default {
         const user = await firebase
           .auth()
           .signInWithEmailAndPassword(email, password);
+        localStorage.setItem("user-token", user.user.uid);
         commit("setUser", new User(user.user.uid));
         commit("setLoading", false);
       } catch (error) {
@@ -41,9 +44,11 @@ export default {
     },
 
     loggedUser({ commit }, payload) {
+      localStorage.setItem("user-token", payload.uid);
       commit("setUser", new User(payload.uid));
     },
     logoutUser({ commit }) {
+      localStorage.removeItem("user-token");
       firebase.auth().signOut();
       commit("setUser", null);
     }

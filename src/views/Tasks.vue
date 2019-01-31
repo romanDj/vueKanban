@@ -17,7 +17,8 @@
                 <v-layout v-else justify-center wrap align-start>
 
                     <template v-if="tasks != null">
-                        <v-card class="kanban" v-for="(task, i) in tasks" :key="i">
+                        <transition-group name="company" tag="div" class="layout justify-center wrap align-start" appear>
+                        <v-card class="kanban" v-for="(task, i) in tasks" :key="'card'+i">
 
                             <v-card-title class="justify-space-between flex"><h4>{{task.category}}
                             </h4>
@@ -29,17 +30,22 @@
                             </v-card-title>
                             <v-divider></v-divider>
                             <v-expansion-panel>
+                                <transition-group tag="li" class="v-expansion-panel__container">
+                                    <template  v-for="(item,it) in task.child">
+                                        <task :taskitem="item" :key="'task'+it" :index="it" :category="i" v-on:delTask="delTask"></task>
+                                    </template>
+                                </transition-group>
 
-                                <template  v-for="(item,it) in task.child">
-                                    <task :taskitem="item" :key="it" :index="it" :category="i" v-on:delTask="delTask"></task>
-                                </template>
 
                             </v-expansion-panel>
 
                         </v-card>
+                        </transition-group>
                     </template>
                     <template v-else>
+
                         <h4 class="text--secondary">У вас еще нет планов, добавьте новую категорию</h4>
+
                     </template>
                 </v-layout>
 
@@ -70,6 +76,13 @@ export default {
       this.$store.dispatch("delCategory", key).then(() => {
         this.tasks = null;
         this.tasks = this.$store.getters.tasks;
+        let countKey = 0;
+        Object.keys(this.tasks).forEach(() => {
+          countKey++;
+        });
+        if (countKey === 0) {
+          this.tasks = null;
+        }
       });
     },
     loadTask() {
@@ -89,23 +102,13 @@ export default {
   computed: {
     loading() {
       return this.$store.getters.loading;
-    },
-    user() {
-      return this.$store.getters.checkUser;
     }
   },
   components: {
     task: () => import("@/components/TaskOnly.vue")
   },
   mounted() {
-    if (this.user) {
-      this.loadTask();
-    }
-  },
-  watch: {
-    user() {
-      this.loadTask();
-    }
+    this.loadTask();
   }
 };
 </script>
@@ -132,6 +135,48 @@ export default {
   transition: opacity 0.5s;
 }
 .fade-enter, .fade-leave-to /* .fade-leave-active до версии 2.1.8 */ {
+  opacity: 0;
+}
+
+.list-complete-item {
+  transition: all 1s;
+  display: inline-block;
+}
+.list-complete-enter, .list-complete-leave-to
+    /* .list-complete-leave-active до версии 2.1.8 */ {
+  opacity: 0;
+  transform: translateX(30px);
+}
+.list-complete-leave-active {
+  position: absolute;
+}
+
+/* base */
+.company {
+  backface-visibility: hidden;
+  z-index: 1;
+}
+
+/* moving */
+.company-move {
+  transition: all 600ms ease-in-out 50ms;
+}
+
+/* appearing */
+.company-enter-active {
+  transition: all 400ms ease-out;
+}
+
+/* disappearing */
+.company-leave-active {
+  transition: all 200ms ease-in;
+  position: absolute;
+  z-index: 0;
+}
+
+/* appear at / disappear to */
+.company-enter,
+.company-leave-to {
   opacity: 0;
 }
 </style>

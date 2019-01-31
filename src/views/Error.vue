@@ -1,8 +1,11 @@
 <template>
     <div class="error d-flex justify-content-center p-2">
-        <p class="pt-3">
-            Page not found #404
-        </p>
+        <v-alert
+                :value="true"
+                type="error"
+        >
+          Page not found #404
+        </v-alert>
 
     </div>
 </template>
