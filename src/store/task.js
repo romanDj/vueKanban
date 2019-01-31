@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import firebase from "firebase/app";
 
 export default {
@@ -5,37 +6,17 @@ export default {
     tasks: []
   },
   mutations: {
-    newTask(state, payload) {
-      state.tasks.find(el => {
-        try {
-          if (el.key === payload.category) {
-            el.child.push(payload);
-          }
-        } catch (err) {
-          return;
-        }
-      });
-    },
-    newCategory(state, payload) {
-      state.tasks.push(payload);
-    },
     delCategory(state, payload) {
-      state.tasks.find((el, index) => {
-        try {
-          if (el.key === payload) {
-            state.tasks.splice(index, 1);
-          }
-        } catch (err) {
-          throw err;
+      Object.keys(state.tasks).forEach((key, index) => {
+        if (key === payload) {
+          delete state.tasks[key];
         }
       });
     },
-    delTask(state, payload) {
-      for (let cat of state.tasks) {
-        for (let task in cat.child) {
-          if (cat.child[task].id === payload) {
-            cat.child.splice(task, 1);
-          }
+    delTask(state, { tsk, cat }) {
+      for (let task in state.tasks[cat].child) {
+        if (task === tsk) {
+          delete state.tasks[cat].child[task];
         }
       }
     },
@@ -77,19 +58,19 @@ export default {
         throw error;
       }
     },
-    async delCategory({ dispatch }, payload) {
+    async delCategory({ commit }, payload) {
       try {
         await firebase
           .database()
           .ref(this.getters.user.id)
           .child(payload)
           .remove();
-        dispatch("uploadTask");
+        commit("delCategory", payload);
       } catch (error) {
         throw error;
       }
     },
-    async delTask({ dispatch }, { tsk, cat }) {
+    async delTask({ dispatch, commit }, { tsk, cat }) {
       try {
         await firebase
           .database()
@@ -98,7 +79,7 @@ export default {
           .child("child")
           .child(tsk)
           .remove();
-        dispatch("uploadTask");
+        commit("delTask", { tsk, cat });
       } catch (error) {
         throw error;
       }

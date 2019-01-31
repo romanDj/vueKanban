@@ -11,7 +11,7 @@
                 <v-card>
                     <v-card-text>{{task.description}}</v-card-text>
                     <div class="myflex">
-                        <v-icon class="myicon" @click.prevent="edit = true">border_color</v-icon><v-icon class="myicon" @click.prevent="delTask">close</v-icon>
+                        <v-icon class="myicon" @click.prevent="edit = true">border_color</v-icon><v-icon class="myicon" @click.prevent="$emit('delTask',{index, category})">close</v-icon>
                     </div>
                 </v-card>
             </template>
@@ -85,11 +85,6 @@ export default {
     this.task = this.taskitem;
   },
   methods: {
-    delTask() {
-      const tsk = this.index;
-      const cat = this.category;
-      this.$store.dispatch("delTask", { tsk, cat });
-    },
     save() {
       this.edit = false;
       this.$store.dispatch("updateTask", { task: this.task, id: this.index });

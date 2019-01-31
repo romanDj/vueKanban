@@ -7,40 +7,43 @@
         </v-container>
 
         <v-container fluid grid-list-md>
-            <v-layout v-if="loading" justify-center wrap align-start>
-            <v-progress-circular
-                    indeterminate
-                    color="primary"
-                   ></v-progress-circular>
-            </v-layout>
-            <v-layout v-else justify-center wrap align-start>
 
-                        <template v-if="tasks != null">
-                            <v-card class="kanban" v-for="(task, i) in tasks" :key="i">
+                <v-layout v-if="loading" justify-center wrap align-start>
+                    <v-progress-circular
+                            indeterminate
+                            color="primary"
+                    ></v-progress-circular>
+                </v-layout>
+                <v-layout v-else justify-center wrap align-start>
 
-                                <v-card-title class="justify-space-between flex"><h4>{{task.category}}</h4>
-                                    <div>
-                                        <v-icon class="myicon primary--text" @click.prevent="addTask(i)">add</v-icon>
-                                        <v-icon class="myicon red--text" @click.prevent="delCategory(i)">close</v-icon>
-                                    </div>
+                    <template v-if="tasks != null">
+                        <v-card class="kanban" v-for="(task, i) in tasks" :key="i">
 
-                                    </v-card-title>
-                                <v-divider></v-divider>
-                                <v-expansion-panel>
+                            <v-card-title class="justify-space-between flex"><h4>{{task.category}}
+                            </h4>
+                                <div>
+                                    <v-icon class="myicon primary--text" @click.prevent="addTask(i)">add</v-icon>
+                                    <v-icon class="myicon red--text" @click.prevent="delCategory(i)">close</v-icon>
+                                </div>
 
-                                    <template  v-for="(item,it) in task.child">
-                                        <task :taskitem="item" :key="it" :index="it" :category="i"></task>
-                                    </template>
+                            </v-card-title>
+                            <v-divider></v-divider>
+                            <v-expansion-panel>
 
-                                </v-expansion-panel>
+                                <template  v-for="(item,it) in task.child">
+                                    <task :taskitem="item" :key="it" :index="it" :category="i" v-on:delTask="delTask"></task>
+                                </template>
 
-                            </v-card>
-                        </template>
-                        <template v-else>
-                            <h4 class="text--secondary">У вас еще нет планов, добавьте новую категорию</h4>
-                        </template>
+                            </v-expansion-panel>
 
-            </v-layout>
+                        </v-card>
+                    </template>
+                    <template v-else>
+                        <h4 class="text--secondary">У вас еще нет планов, добавьте новую категорию</h4>
+                    </template>
+                </v-layout>
+
+
 
         </v-container>
     </div>
@@ -52,7 +55,8 @@ export default {
   name: "Tasks",
   data() {
     return {
-      load: true
+      load: true,
+      tasks: null
     };
   },
   methods: {
@@ -63,16 +67,26 @@ export default {
       this.$router.push("/addcategory");
     },
     delCategory(key) {
-      this.$store.dispatch("delCategory", key);
+      this.$store.dispatch("delCategory", key).then(() => {
+        this.tasks = null;
+        this.tasks = this.$store.getters.tasks;
+      });
     },
     loadTask() {
-      this.$store.dispatch("uploadTask");
+      this.$store.dispatch("uploadTask").then(() => {
+        this.tasks = this.$store.getters.tasks;
+      });
+    },
+    delTask(payload) {
+      const tsk = payload.index;
+      const cat = payload.category;
+      this.$store.dispatch("delTask", { tsk, cat }).then(() => {
+        this.tasks = null;
+        this.tasks = this.$store.getters.tasks;
+      });
     }
   },
   computed: {
-    tasks() {
-      return this.$store.getters.tasks;
-    },
     loading() {
       return this.$store.getters.loading;
     },
@@ -111,5 +125,13 @@ export default {
   display: flex;
   justify-content: flex-end;
   margin: 10px;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active до версии 2.1.8 */ {
+  opacity: 0;
 }
 </style>
