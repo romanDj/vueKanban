@@ -2,53 +2,58 @@
     <div>
         <v-container class="pb-0">
             <v-btn-toggle style="background: none">
-                <v-btn  color="indigo darken-4" flat dark @click.prevent="addCategory" ><v-icon>add</v-icon> новая категория</v-btn>
+                <v-btn color="indigo darken-4" flat dark @click.prevent="addCategory">
+                    <v-icon>add</v-icon>
+                    новая категория
+                </v-btn>
             </v-btn-toggle>
         </v-container>
 
         <v-container fluid grid-list-md>
 
-                <v-layout v-if="loading" justify-center wrap align-start>
-                    <v-progress-circular
-                            indeterminate
-                            color="primary"
-                    ></v-progress-circular>
-                </v-layout>
-                <v-layout v-else justify-center wrap align-start>
+            <v-layout v-if="loading" justify-center wrap align-start>
+                <v-progress-circular
+                        indeterminate
+                        color="primary"
+                ></v-progress-circular>
+            </v-layout>
+            <v-layout v-else justify-center wrap align-start>
 
-                    <template v-if="tasks != null">
-                        <transition-group name="company" tag="div" class="layout justify-center wrap align-start" appear>
-                        <v-card class="kanban" v-for="(task, i) in tasks" :key="'card'+i">
+                <template v-if="tasks != null">
+                    <transition-group name="company" tag="div" class="layout justify-center wrap align-start" appear>
+                        <v-card class="kanban" v-for="task in tasks" :key="task.id">
 
-                            <v-card-title class="justify-space-between flex"><h4>{{task.category}}
+                            <v-card-title class="justify-space-between flex"><h4>{{task.name }}
                             </h4>
                                 <div>
-                                    <v-icon class="myicon primary--text" @click.prevent="addTask(i)">add</v-icon>
-                                    <v-icon class="myicon red--text" @click.prevent="delCategory(i)">close</v-icon>
+                                    <v-icon class="myicon primary--text" @click.prevent="addTask(task.id)">add</v-icon>
+                                    <v-icon class="myicon red--text" @click.prevent="delCategory(task.id)">close
+                                    </v-icon>
                                 </div>
-
                             </v-card-title>
                             <v-divider></v-divider>
                             <v-expansion-panel>
-                                <transition-group tag="li" class="v-expansion-panel__container">
-                                    <template  v-for="(item,it) in task.child">
-                                        <task :taskitem="item" :key="'task'+it" :index="it" :category="i" v-on:delTask="delTask"></task>
-                                    </template>
-                                </transition-group>
 
+                                <draggable v-model="task.child" :options="{group:'category'}">
+                                    <transition-group tag="li" class="v-expansion-panel__container">
+                                        <template v-for="item in task.child">
+                                            <task :taskitem="item" :key="item.id" :index="item.id" :category="task.id"
+                                                  v-on:delTask="delTask"></task>
+                                        </template>
+                                    </transition-group>
+
+                                </draggable>
 
                             </v-expansion-panel>
-
                         </v-card>
-                        </transition-group>
-                    </template>
-                    <template v-else>
+                    </transition-group>
+                </template>
+                <template v-else>
 
-                        <h4 class="text--secondary">У вас еще нет планов, добавьте новую категорию</h4>
+                    <h4 class="text--secondary">У вас еще нет планов, добавьте новую категорию</h4>
 
-                    </template>
-                </v-layout>
-
+                </template>
+            </v-layout>
 
 
         </v-container>
@@ -57,6 +62,8 @@
 </template>
 
 <script>
+import draggable from "vuedraggable";
+
 export default {
   name: "Tasks",
   data() {
@@ -74,8 +81,7 @@ export default {
     },
     delCategory(key) {
       this.$store.dispatch("delCategory", key).then(() => {
-        this.tasks = null;
-        this.tasks = this.$store.getters.tasks;
+        this.formaterTask();
         let countKey = 0;
         Object.keys(this.tasks).forEach(() => {
           countKey++;
@@ -87,16 +93,39 @@ export default {
     },
     loadTask() {
       this.$store.dispatch("uploadTask").then(() => {
-        this.tasks = this.$store.getters.tasks;
+        this.formaterTask();
       });
     },
     delTask(payload) {
       const tsk = payload.index;
       const cat = payload.category;
       this.$store.dispatch("delTask", { tsk, cat }).then(() => {
-        this.tasks = null;
-        this.tasks = this.$store.getters.tasks;
+        this.formaterTask();
       });
+    },
+    formaterTask() {
+      let storeTask = this.$store.getters.tasks;
+      let myarr = [];
+      Object.keys(storeTask).forEach(key => {
+        let cat = { id: key, name: storeTask[key].category, child: [] };
+        if (storeTask[key].child != null) {
+          Object.keys(storeTask[key].child).forEach(k => {
+            let task = {
+              id: k,
+              date: storeTask[key].child[k].date,
+              color: storeTask[key].child[k].color,
+              description: storeTask[key].child[k].description,
+              name: storeTask[key].child[k].name,
+              category: storeTask[key].child[k].category
+            };
+            cat.child.push(task);
+          });
+        }
+
+        myarr.push(cat);
+      });
+      this.tasks = null;
+      this.tasks = myarr;
     }
   },
   computed: {
@@ -105,7 +134,8 @@ export default {
     }
   },
   components: {
-    task: () => import("@/components/TaskOnly.vue")
+    task: () => import("@/components/TaskOnly.vue"),
+    draggable
   },
   mounted() {
     this.loadTask();
@@ -119,11 +149,13 @@ export default {
   max-width: 450px;
   margin: 10px;
 }
+
 .myicon {
   cursor: pointer;
   font-size: 18px;
   margin-right: 10px;
 }
+
 .myflex {
   display: flex;
   justify-content: flex-end;
@@ -134,7 +166,9 @@ export default {
 .fade-leave-active {
   transition: opacity 0.5s;
 }
-.fade-enter, .fade-leave-to /* .fade-leave-active до версии 2.1.8 */ {
+
+.fade-enter, .fade-leave-to /* .fade-leave-active до версии 2.1.8 */
+ {
   opacity: 0;
 }
 
@@ -142,11 +176,14 @@ export default {
   transition: all 1s;
   display: inline-block;
 }
+
 .list-complete-enter, .list-complete-leave-to
-    /* .list-complete-leave-active до версии 2.1.8 */ {
+        /* .list-complete-leave-active до версии 2.1.8 */
+ {
   opacity: 0;
   transform: translateX(30px);
 }
+
 .list-complete-leave-active {
   position: absolute;
 }
