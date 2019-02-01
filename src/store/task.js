@@ -7,18 +7,21 @@ export default {
   },
   mutations: {
     delCategory(state, payload) {
-      Object.keys(state.tasks).forEach((key, index) => {
-        if (key === payload) {
-          delete state.tasks[key];
-        }
-      });
+      state.tasks.splice(
+        state.tasks.indexOf(
+          state.tasks.find(x => {
+            return x.id === payload;
+          })
+        ),
+        1
+      );
     },
     delTask(state, { tsk, cat }) {
-      for (let task in state.tasks[cat].child) {
-        if (task === tsk) {
-          delete state.tasks[cat].child[task];
-        }
-      }
+      let indCat = state.tasks.indexOf(state.tasks.find(x => x.id === cat));
+      let indTsk = state.tasks[indCat].child.indexOf(
+        state.tasks[indCat].child.find(x => x.id === tsk)
+      );
+      state.tasks[indCat].child.splice(indTsk, 1);
     },
     setTask(state, payload) {
       state.tasks = payload;
@@ -114,8 +117,58 @@ export default {
           .ref(this.getters.user.id)
           .once("value");
         const tasksVal = tasks.val();
-        commit("setTask", tasksVal);
+        let myarr = [];
+        Object.keys(tasksVal).forEach(key => {
+          let cat = { id: key, name: tasksVal[key].category, child: [] };
+          if (tasksVal[key].child != null) {
+            Object.keys(tasksVal[key].child).forEach(k => {
+              let task = {
+                id: k,
+                date: tasksVal[key].child[k].date,
+                color: tasksVal[key].child[k].color,
+                description: tasksVal[key].child[k].description,
+                name: tasksVal[key].child[k].name,
+                category: tasksVal[key].child[k].category
+              };
+              cat.child.push(task);
+            });
+          }
+
+          myarr.push(cat);
+        });
+        commit("setTask", myarr);
         commit("setLoading", false);
+      } catch (error) {
+        throw error;
+      }
+    },
+    async updateTaskList({ commit }, payload) {
+      try {
+        for (let item of payload) {
+          await firebase
+            .database()
+            .ref(this.getters.user.id)
+            .child(item.id)
+            .child("child")
+            .remove();
+          if (item.child) {
+            for (let ch of item.child) {
+              await firebase
+                .database()
+                .ref(this.getters.user.id)
+                .child(item.id)
+                .child("child")
+                .child(ch.id)
+                .update({
+                  name: ch.name,
+                  description: ch.description,
+                  category: item.id,
+                  date: ch.date,
+                  color: ch.color
+                });
+            }
+          }
+        }
       } catch (error) {
         throw error;
       }

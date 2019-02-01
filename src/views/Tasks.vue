@@ -34,14 +34,11 @@
                             <v-divider></v-divider>
                             <v-expansion-panel>
 
-                                <draggable v-model="task.child" :options="{group:'category'}">
-                                    <transition-group tag="li" class="v-expansion-panel__container">
+                                <draggable v-model="task.child" :options="{group:'category'}" style="width: 100%" @end="endDrag">
                                         <template v-for="item in task.child">
                                             <task :taskitem="item" :key="item.id" :index="item.id" :category="task.id"
                                                   v-on:delTask="delTask"></task>
                                         </template>
-                                    </transition-group>
-
                                 </draggable>
 
                             </v-expansion-panel>
@@ -68,8 +65,7 @@ export default {
   name: "Tasks",
   data() {
     return {
-      load: true,
-      tasks: null
+      load: true
     };
   },
   methods: {
@@ -81,7 +77,6 @@ export default {
     },
     delCategory(key) {
       this.$store.dispatch("delCategory", key).then(() => {
-        this.formaterTask();
         let countKey = 0;
         Object.keys(this.tasks).forEach(() => {
           countKey++;
@@ -92,45 +87,24 @@ export default {
       });
     },
     loadTask() {
-      this.$store.dispatch("uploadTask").then(() => {
-        this.formaterTask();
-      });
+      this.$store.dispatch("uploadTask");
     },
     delTask(payload) {
       const tsk = payload.index;
       const cat = payload.category;
-      this.$store.dispatch("delTask", { tsk, cat }).then(() => {
-        this.formaterTask();
-      });
+      this.$store.dispatch("delTask", { tsk, cat });
     },
-    formaterTask() {
-      let storeTask = this.$store.getters.tasks;
-      let myarr = [];
-      Object.keys(storeTask).forEach(key => {
-        let cat = { id: key, name: storeTask[key].category, child: [] };
-        if (storeTask[key].child != null) {
-          Object.keys(storeTask[key].child).forEach(k => {
-            let task = {
-              id: k,
-              date: storeTask[key].child[k].date,
-              color: storeTask[key].child[k].color,
-              description: storeTask[key].child[k].description,
-              name: storeTask[key].child[k].name,
-              category: storeTask[key].child[k].category
-            };
-            cat.child.push(task);
-          });
-        }
-
-        myarr.push(cat);
-      });
-      this.tasks = null;
-      this.tasks = myarr;
+    endDrag() {
+      this.$store.dispatch("updateTaskList", this.tasks);
     }
   },
   computed: {
     loading() {
       return this.$store.getters.loading;
+    },
+
+    tasks() {
+      return this.$store.getters.tasks;
     }
   },
   components: {
