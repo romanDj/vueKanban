@@ -1,5 +1,8 @@
 # kanbanboard
 
+### Code in action
+See the example here. [Configuration Reference](https://hgfb-e9b1e.firebaseapp.com).
+
 ## Project setup
 ```
 npm install
